@@ -6,4 +6,4 @@ We saw a significant difference for growth rates between the unevolved and evolv
 
 Present in this folder (as of 31st January, 2025) are the codes for both plotting and extracting curve-fit parameters for the growth curves of the E. coli populations.
 Two codes were created, one for the control populations, and another for the evolved populations.
-These codes were created with partial suggestions from ChatGPT 3.0.
+These codes were created partially with suggestions from ChatGPT 3.0.
