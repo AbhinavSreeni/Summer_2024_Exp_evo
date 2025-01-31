@@ -1,5 +1,5 @@
 ```{r}
-
+##This is a code to both plot and analyse the growth of control populations of E. coli on 2 concentrations of Ampicillin and Nalidixic Acid each. Uses Growthcurver, an R package developed by Kathleen Sproussfke. See Summer project report for more details.
 # Define list of subtitles
 titles_concentration_of_antibiotic_in_test <- c(
   "S_4 ugmL - Test in Streptomycin 4 ug/mL", 
