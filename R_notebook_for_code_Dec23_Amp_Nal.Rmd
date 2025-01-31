@@ -1,4 +1,5 @@
 ```{r}
+#This is a code to both plot and analyse the growth of evolved populations on 2 concentrations of Ampicillin and Nalidixic Acid each. Uses Growthcurver, an  R package developed by Kathleen Sproussfke.
 # Load necessary libraries
 library(ggplot2)
 library(reshape2)
