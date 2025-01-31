@@ -1,0 +1,173 @@
+```{r}
+
+# Define list of subtitles
+titles_concentration_of_antibiotic_in_test <- c(
+  "S_4 ugmL - Test in Streptomycin 4 ug/mL", 
+  "S_7 ugmL - Test in Streptomycin 7 ug/mL",
+  "A_7 ugmL - Test in Ampicillin 7 ug/mL", 
+  "A_16 ugmL - Test in Ampicillin 16 ug/mL",
+  "N_24 ugmL - Test in Nalidixic Acid 24 ug/mL",
+  "N_90 ugmL - Test in Nalidixic Acid 90 ug/mL",
+  "C_0.3125 ugmL - Test in Ceftazidime 0.3125 ug/mL",
+  "C_0.75 ugmL - Test in Ceftazidime 0.75 ug/mL"
+)
+```
+
+```{r}
+library(ggplot2)
+library(reshape2)
+
+# Define your file path
+ctrl_growth <- "D:/Abhinav Personal/IISER Pune/Books and ref material/Biology/Summer 2024/Plots of evo1/Control/Ctrl reads as csv file.csv"
+
+# Read the CSV file
+ctrl_growth_reads_formatted <- read.csv(ctrl_growth, header = TRUE, stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+
+# Identify columns with OD values (excluding 'time')
+od_val_columns <- names(ctrl_growth_reads_formatted)[names(ctrl_growth_reads_formatted) != "time"]
+
+# Subtract the first OD reading in each column from all subsequent readings:
+#for (col in od_val_columns) {
+#  first_datapoint <- ctrl_growth_reads_formatted[1, col]  # Get the first value in each column
+#  ctrl_growth_reads_formatted[[col]] <- ctrl_growth_reads_formatted[[col]] - first_datapoint
+#}
+file.access("D:/Abhinav Personal/IISER Pune/Books and ref material/Biology/Summer 2024/Plots of evo1", 2)
+getwd()
+
+# Define the output directory for saving plots
+output_path <- "D:/Abhinav Personal/IISER Pune/Books and ref material/Biology/Summer 2024/Plots of evo1/Control"
+if (!dir.exists(output_path)) {
+  dir.create(output_path, recursive = TRUE)
+}
+
+plot_index <- 1 # Initialize plot index
+i = 0
+#three replicates, so 24/3 = 8 plots
+for (plot_index in 1:8) {
+  title = titles_concentration_of_antibiotic_in_test[i+1]
+  i = i+1
+  
+  subtitle = 'Unevolved Wild-Type E.coli' # Assign subtitles based on plot_index
+  
+  # Column group selection based on plot_index
+  starting_column <- (plot_index - 1) * 3 + 1
+  column_group <- od_val_columns[starting_column:(starting_column + 2)]
+  
+  # Create a subset of data for this group
+  plot_data <- melt(ctrl_growth_reads_formatted, id.vars = "time", measure.vars = column_group)
+  colnames(plot_data)
+#################################################################################################################################### 
+  # Plotting the graph in triplicates:
+  plot <- ggplot(plot_data, aes(x = time, y = value, color = variable)) +
+    geom_line(linewidth = 0.75) + #straight line connecting adjacent data points helps us visualise the growth curve
+    geom_point(size = 1, shape = "circle") + #shape of data points
+    labs(
+      x = "Time (hours)",
+      y = "Absorbance (normalized to initial OD600 value)",
+      title = title,
+      subtitle = subtitle,
+      caption = "Growth measured in triplicates",
+      color = "Replicates"  # Legend title
+    ) +
+    scale_color_manual(
+      values = c("orange", "green", "purple"),  # Assign colors for the replicates
+      labels = unique(plot_data$variable)  # Use the actual column names (replicates) as legend labels
+    ) +
+    scale_x_continuous(
+      breaks = seq(0, 25, by = 1), 
+      minor_breaks = seq(0, 25, by = 1/3)
+    ) +
+    scale_y_continuous(
+      breaks = seq(-0.1, 1.5, by = 0.1), 
+      sec.axis = sec_axis(~ ., name = "Absorbance at 600 nm"),
+      minor_breaks = seq(-0.1, 1.5, by = 0.05),  
+      limits = c(-0.1, 1.5), 
+      expand = c(0, 0)
+    ) +
+    theme_minimal() +
+    theme(
+      axis.title = element_text(size = 25, face = "bold"),
+      axis.text = element_text(size = 20),
+      plot.title = element_text(size = 28, face = "bold", hjust = 0.5),
+      plot.subtitle = element_text(size = 26, face = "bold", hjust = 0.5),
+      plot.caption = element_text(size = 18, hjust = 0.9, vjust = 0.1, colour = "red"),
+      panel.grid.major = element_line(linewidth = 0.45, linetype = 'solid', color = "gray20"),
+      panel.grid.minor = element_line(linewidth = 0.3, linetype = 'dashed', color = "gray30"),
+      legend.title = element_text(size = 22),  # Customize legend title size
+      legend.text = element_text(size = 20)    # Customize legend text size
+    )
+  
+  # Construct the filename based on title and subtitle
+  file_title <- file.path(output_path, paste0(plot_index, "evo1_", substr(title, 1, 8), "_ctrl", ".jpeg"))
+  
+  # Save the plot. Note that this rewrites any file previously saved with the same name
+  ggsave(filename = file_title, plot, width = 19.2, height = 12)
+  
+  # Break out after creating 8 plots
+  if (plot_index >= 8) break
+}
+```
+
+```{r}
+# To summarize growth parameters using Growthcurver (Dr. Kathleen Sproussfke)
+library(growthcurver)
+# Define your file path
+ctrl_growth <- "D:/Abhinav Personal/IISER Pune/Books and ref material/Biology/Summer 2024/Plots of evo1/Control/Ctrl reads as csv file.csv"
+
+# Read the CSV file
+ctrl_growth_reads_formatted <- read.csv(ctrl_growth, header = TRUE, stringsAsFactors = FALSE, fileEncoding = "UTF-8")
+
+# Identify columns with OD values (excluding 'time')
+od_val_columns <- names(ctrl_growth_reads_formatted)[names(ctrl_growth_reads_formatted) != "time"]
+
+#Subtract the first OD reading in each column from all subsequent readings:
+#for (col in od_val_columns) {
+#  first_datapoint <- ctrl_growth_reads_formatted[1, col]  # Get the first value in each column
+#  ctrl_growth_reads_formatted[[col]] <- ctrl_growth_reads_formatted[[col]] - first_datapoint
+#}
+ 
+# Define the path
+csv_file_path_for_stats <- "D:/Abhinav Personal/IISER Pune/Books and ref material/Biology/Summer 2024/Plots of evo1/Control/Ctrl_evo1_growth_summary_raw_28_1_2025.csv"
+
+# If the file already exists, load it
+if (file.exists(csv_file_path_for_stats)) {wb <- read.csv(csv_file_path_for_stats)
+  } else {wb <- data.frame()  # Create a new workbook if the file does not exist
+  }
+
+# Initialize an empty list
+summary_data_all_plots <- list()
+
+plot_index <- 1 # Initialize plot index
+i=0
+#three replicates, so 24/3 = 8 plots
+for (plot_index in 1:8) {
+  title = titles_concentration_of_antibiotic_in_test[i+1]
+  i = i+1
+  
+  subtitle = 'Unevolved Wild-Type E.coli' # Assign subtitles based on plot_index
+  # Column group selection based on plot_index
+  starting_column <- (plot_index - 1) * 3 + 1
+  column_group <- od_val_columns[starting_column:(starting_column + 2)]
+
+# Growth analysis step
+  plate <-ctrl_growth_reads_formatted[, c("time", column_group)]
+  gc_out <- SummarizeGrowthByPlate(plate, bg_correct = 'none') #note that 'plate' here is just the data in triplicates
+  #also note: normalisation has been done previously. However, even in the absence of the normalisation, the curve fit shows the same n0 for the intial cells atl, non-zero. Probably required for the best fit. 
+
+  # Add title, subtitle as columns
+  cols_converted_to_list <- apply(gc_out, 2, as.list)
+  serialised_list <- sapply(cols_converted_to_list, function(column) paste(capture.output(dput(column)), collapse = ""))
+  
+  output_df <-data.frame(ColumnAsList = serialised_list, stringsAsFactors = FALSE)
+  
+  gc_out$title <- title
+  gc_out$subtitle <- subtitle
+#NOTE: YET TO CREATE A COLUMN FOR GEOMETRIC MEAN, MUST TAKE ALL VALS AFTER 1ST READING!
+  # Write the combined summary data to the Excel file (note: write.csv doesn't take the append argument, hence using write.table)
+  write.table(gc_out, file = csv_file_path_for_stats, sep = ",", row.names = FALSE, col.names = !file.exists(csv_file_path_for_stats), append = TRUE)
+}
+
+#library(dqmagic)
+#file_type(csv_file_path)
+warnings()
+```
